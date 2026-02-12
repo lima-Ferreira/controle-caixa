@@ -237,19 +237,40 @@
 
             filtrados.reverse().forEach(item => {
                 soma += item.valor;
-                const tag = item.subtipo ? `<span class="px-1.5 py-0.5 rounded text-[8px] font-black uppercase ${item.subtipo === 'Sangria' ? 'bg-red-50 text-red-500' : 'bg-orange-50 text-orange-500'} ml-2 border border-current">${item.subtipo}</span>` : '';
+
+                // Ajuste aqui: Identifica se tem bandeira ou subtipo
+                const tag = item.subtipo ? `<span class="px-1.5 py-0.5 rounded text-[8px] font-black uppercase ${item.subtipo === 'Sangria' ? 'bg-red-50 text-red-500 border border-red-200' : 'bg-orange-50 text-orange-500 border border-orange-200'} ml-2">${item.subtipo}</span>` : '';
+                const infoCartao = item.forma === 'Cartão' && item.bandeira ? ` • ${item.bandeira}` : '';
+
                 container.innerHTML += `
-                    <div class="flex items-center justify-between py-4 border-b border-gray-50 relative">
-                        <div class="flex-1 pr-4">
-                            <div class="flex items-center mb-1 text-[9px] text-gray-400 font-bold uppercase tracking-tighter">${item.data}${tag}</div>
-                            <div class="flex items-center gap-2"><span class="text-[10px] font-black text-blue-500 uppercase">${item.forma}</span><p class="text-sm font-semibold text-gray-700 truncate max-w-[150px]">${item.desc}</p></div>
-                        </div>
-                        <div class="flex items-center gap-4"><span class="text-sm font-bold ${tipo === 'entrada' ? 'text-green-600' : 'text-red-600'}">R$ ${item.valor.toFixed(2)}</span>
-                        <button onclick="excluirItem(${item.id}, '${tipo}')" class="text-red-100 hover:text-red-500 transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div>
-                    </div>`;
+            <div class="flex items-center justify-between py-4 border-b border-gray-50 relative">
+                <div class="flex-1 pr-4">
+                    <div class="flex items-center mb-1 text-[9px] text-gray-400 font-bold uppercase tracking-tighter">
+                        ${item.data}${tag}
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-black text-blue-500 uppercase">
+                            ${item.forma}${infoCartao}
+                        </span>
+                        <p class="text-sm font-semibold text-gray-700 truncate max-w-[150px]">${item.desc}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm font-bold ${tipo === 'entrada' ? 'text-green-600' : 'text-red-600'}">
+                        R$ ${item.valor.toFixed(2)}
+                    </span>
+                    <button onclick="excluirItem(${item.id}, '${tipo}')" class="text-red-100 hover:text-red-500 transition-colors">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>`;
             });
             document.getElementById('totalPagina').innerText = `R$ ${soma.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
         }
+
 
         function excluirItem(id, tipo) {
             if (confirm("Apagar?")) {
