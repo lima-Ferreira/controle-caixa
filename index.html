@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Caixa Pro 2026 - Versão Final</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #listaRegistros::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        body {
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen font-sans text-gray-900">
+
+    <!-- TELA PRINCIPAL (LANÇAMENTOS) -->
+    <div id="tela-principal" class="max-w-md mx-auto p-4 space-y-4">
+        <!-- Dashboard de Saldo -->
+        <div class="bg-blue-700 p-8 rounded-[2.5rem] text-white shadow-2xl shadow-blue-200 text-center">
+            <p class="text-[10px] uppercase tracking-[0.2em] opacity-70 font-black mb-1">Saldo em Caixa</p>
+            <h1 id="saldoTotal" class="text-4xl font-black italic tracking-tighter">R$ 0,00</h1>
+        </div>
+
+        <!-- Formulário de Entrada de Dados -->
+        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 space-y-4">
+            <input type="text" id="desc" placeholder="O que foi vendido ou gasto?"
+                class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm border-none">
+            <input type="number" id="valor" placeholder="Valor R$ 0,00"
+                class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm border-none font-bold">
+
+            <select id="forma" onchange="toggleBandeira()"
+                class="w-full p-4 bg-gray-50 rounded-2xl outline-none text-sm border-none font-bold text-gray-700">
+                <option value="Dinheiro">💵 Dinheiro</option>
+                <option value="Pix">💎 PIX</option>
+                <option value="Cartão">💳 Cartão</option>
+            </select>
+
+            <div id="divBandeira" class="hidden">
+                <select id="bandeira"
+                    class="w-full p-4 bg-blue-50 rounded-2xl outline-none border border-blue-100 text-sm font-black text-blue-600">
+                    <option value="Visa">Visa</option>
+                    <option value="Mastercard">Mastercard</option>
+                    <option value="Elo">Elo</option>
+                </select>
+            </div>
+
+            <!-- Seleção de Tipo de Saída -->
+            <div id="divTipoSaida" class="hidden space-y-2">
+                <p class="text-[10px] font-black text-rose-500 uppercase ml-1">Classificar Saída:</p>
+                <div class="flex gap-2">
+                    <button onclick="confirmarSalvar('saida', 'Sangria')"
+                        class="flex-1 bg-rose-50 text-rose-600 py-3 rounded-xl font-black text-[10px] uppercase border border-rose-100">Sangria</button>
+                    <button onclick="confirmarSalvar('saida', 'Despesa')"
+                        class="flex-1 bg-orange-50 text-orange-600 py-3 rounded-xl font-black text-[10px] uppercase border border-orange-100">Despesa</button>
+                </div>
+            </div>
+
+            <!-- Botões Principais -->
+            <div id="botoesAcao" class="flex gap-3 pt-2">
+                <button onclick="confirmarSalvar('entrada')"
+                    class="flex-1 bg-emerald-500 text-white py-4 rounded-2xl font-black shadow-lg shadow-emerald-100 active:scale-95 transition-all uppercase tracking-widest text-xs">Entrada</button>
+                <button onclick="mostrarOpcoesSaida()"
+                    class="flex-1 bg-rose-500 text-white py-4 rounded-2xl font-black shadow-lg shadow-rose-100 active:scale-95 transition-all uppercase tracking-widest text-xs">Saída</button>
+            </div>
+        </div>
+
+        <!-- Navegação de Páginas -->
+        <div class="grid grid-cols-2 gap-4">
+            <button onclick="abrirPagina('entrada')"
+                class="bg-white py-4 rounded-2xl shadow-sm text-emerald-600 font-black border border-emerald-50 active:bg-emerald-50 transition-all text-[10px] uppercase tracking-widest">📋
+                Ver Entradas</button>
+            <button onclick="abrirPagina('saida')"
+                class="bg-white py-4 rounded-2xl shadow-sm text-rose-600 font-black border border-rose-50 active:bg-rose-50 transition-all text-[10px] uppercase tracking-widest">📋
+                Ver Saídas</button>
+        </div>
+
+        <!-- BOTÃO DE RESET (LIMPAR TUDO) -->
+        <div class="pt-4 flex justify-center">
+            <button onclick="resetarTudo()"
+                class="text-[10px] font-black text-gray-400 hover:text-rose-500 uppercase tracking-[0.2em] transition-colors flex items-center gap-2 border border-gray-200 px-4 py-2 rounded-full">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                    stroke-linecap="round">
+                    <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                </svg>
+                Zerar para o novo dia
+            </button>
+        </div>
+    </div>
+
+    <!-- TELA DE RELATÓRIO -->
+    <div id="tela-relatorio" class="hidden fixed inset-0 bg-white flex flex-col z-50">
+        <div class="p-4 border-b border-gray-100">
+            <div class="max-w-md mx-auto flex items-center justify-between mb-4">
+                <button onclick="voltar()"
+                    class="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center active:scale-90 transition-all">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="3"
+                        stroke-linecap="round">
+                        <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                </button>
+                <h2 id="tituloRelatorio" class="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em]"></h2>
+                <div class="w-10"></div>
+            </div>
+            <div class="max-w-md mx-auto flex gap-2 bg-gray-100 p-1 rounded-xl">
+                <button id="btnAtalhoEntrada" onclick="abrirPagina('entrada')"
+                    class="flex-1 py-2 text-[10px] font-black uppercase rounded-lg transition-all">Entradas</button>
+                <button id="btnAtalhoSaida" onclick="abrirPagina('saida')"
+                    class="flex-1 py-2 text-[10px] font-black uppercase rounded-lg transition-all">Saídas</button>
+            </div>
+        </div>
+        <div id="listaRegistros" class="flex-1 overflow-y-auto px-4 max-w-md mx-auto w-full pb-32"></div>
+        <div class="absolute bottom-0 left-0 right-0 p-6 bg-white/90 backdrop-blur-md border-t border-gray-100">
+            <div class="max-w-md mx-auto flex justify-between items-center">
+                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Soma Total:</span>
+                <span id="totalPagina" class="text-3xl font-black text-gray-900 tracking-tighter">R$ 0,00</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = () => atualizarSaldo();
+
+        function toggleBandeira() {
+            const forma = document.getElementById('forma').value;
+            document.getElementById('divBandeira').classList.toggle('hidden', forma !== 'Cartão');
+        }
+
+        function mostrarOpcoesSaida() {
+            if (!document.getElementById('desc').value || !document.getElementById('valor').value) return alert("Preencha descrição e valor!");
+            document.getElementById('botoesAcao').classList.add('hidden');
+            document.getElementById('divTipoSaida').classList.remove('hidden');
+        }
+
+        function confirmarSalvar(tipo, subtipo = '') {
+            const desc = document.getElementById('desc').value;
+            const valor = parseFloat(document.getElementById('valor').value);
+            const forma = document.getElementById('forma').value;
+            const bandeira = forma === 'Cartão' ? document.getElementById('bandeira').value : '';
+            if (!desc || isNaN(valor)) return alert("Preencha descrição e valor!");
+
+            const agora = new Date();
+            const dataF = agora.toLocaleDateString('pt-BR') + ', ' + agora.toLocaleTimeString('pt-BR');
+            const registro = { id: Date.now(), tipo, subtipo, desc, valor, forma, bandeira, data: dataF };
+            const dados = JSON.parse(localStorage.getItem('fluxo_caixa')) || [];
+            dados.push(registro);
+            localStorage.setItem('fluxo_caixa', JSON.stringify(dados));
+
+            alert("✅ Lançamento salvo!");
+            document.getElementById('desc').value = '';
+            document.getElementById('valor').value = '';
+            document.getElementById('divTipoSaida').classList.add('hidden');
+            document.getElementById('botoesAcao').classList.remove('hidden');
+            atualizarSaldo();
+        }
+
+        function atualizarSaldo() {
+            const dados = JSON.parse(localStorage.getItem('fluxo_caixa')) || [];
+            const saldo = dados.reduce((acc, i) => i.tipo === 'entrada' ? acc + i.valor : acc - i.valor, 0);
+            document.getElementById('saldoTotal').innerText = `R$ ${saldo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        }
+
+        function resetarTudo() {
+            if (confirm("🚨 ATENÇÃO: Deseja apagar todos os registros e ZERAR o caixa para um novo dia?")) {
+                localStorage.removeItem('fluxo_caixa');
+                atualizarSaldo();
+                alert("✨ Tudo pronto! O caixa está zerado.");
+            }
+        }
+
+        function abrirPagina(tipoFiltro) {
+            document.getElementById('tela-principal').classList.add('hidden');
+            document.getElementById('tela-relatorio').classList.remove('hidden');
+            document.getElementById('tituloRelatorio').innerText = tipoFiltro === 'entrada' ? 'Extrato Entradas' : 'Extrato Saídas';
+            renderizarLista(tipoFiltro);
+        }
+
+        function renderizarLista(tipoFiltro) {
+            const dados = JSON.parse(localStorage.getItem('fluxo_caixa')) || [];
+            const filtrados = dados.filter(d => d.tipo === tipoFiltro);
+            const container = document.getElementById('listaRegistros');
+            let somaFiltro = 0;
+
+            const btnE = document.getElementById('btnAtalhoEntrada');
+            const btnS = document.getElementById('btnAtalhoSaida');
+            if (tipoFiltro === 'entrada') {
+                btnE.className = "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm text-green-600";
+                btnS.className = "flex-1 py-2 text-[10px] font-bold uppercase rounded-lg text-gray-400";
+            } else {
+                btnS.className = "flex-1 py-2 text-[10px] font-black uppercase rounded-lg bg-white shadow-sm text-red-600";
+                btnE.className = "flex-1 py-2 text-[10px] font-bold uppercase rounded-lg text-gray-400";
+            }
+
+            container.innerHTML = filtrados.length ? '' : '<p class="text-center text-gray-300 mt-20 font-black uppercase text-[10px]">Sem registros</p>';
+
+            filtrados.reverse().forEach(item => {
+                somaFiltro += item.valor;
+                const tagSubtipo = item.subtipo ? `<span class="px-1.5 py-0.5 rounded text-[8px] font-black uppercase ${item.subtipo === 'Sangria' ? 'bg-red-50 text-red-500 border border-red-200' : 'bg-orange-50 text-orange-500 border border-orange-200'} ml-2">${item.subtipo}</span>` : '';
+                container.innerHTML += `
+                    <div class="flex items-center justify-between py-4 border-b border-gray-50 relative">
+                        <div class="flex-1 pr-4">
+                            <div class="flex items-center mb-1 text-[9px] text-gray-400 font-bold uppercase tracking-tighter">${item.data}${tagSubtipo}</div>
+                            <div class="flex items-center gap-2"><span class="text-[10px] font-black text-blue-500 uppercase tracking-tighter">${item.forma}</span><p class="text-sm font-semibold text-gray-700 truncate max-w-[150px]">${item.desc}</p></div>
+                        </div>
+                        <div class="flex items-center gap-4"><span class="text-sm font-black ${tipoFiltro === 'entrada' ? 'text-green-600' : 'text-red-600'}">R$ ${item.valor.toFixed(2)}</span>
+                        <button onclick="excluirItem(${item.id}, '${tipoFiltro}')" class="text-red-200 hover:text-red-500 transition-colors"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div>
+                    </div>`;
+            });
+            document.getElementById('totalPagina').innerText = `R$ ${somaFiltro.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        }
+
+        function excluirItem(id, tipoFiltro) {
+            if (confirm("Apagar permanentemente?")) {
+                let dados = JSON.parse(localStorage.getItem('fluxo_caixa')) || [];
+                dados = dados.filter(i => i.id !== id);
+                localStorage.setItem('fluxo_caixa', JSON.stringify(dados));
+                atualizarSaldo();
+                renderizarLista(tipoFiltro);
+            }
+        }
+
+        function voltar() {
+            document.getElementById('tela-relatorio').classList.add('hidden');
+            document.getElementById('tela-principal').classList.remove('hidden');
+        }
+    </script>
+</body>
+
+</html>
