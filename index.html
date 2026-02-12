@@ -234,39 +234,35 @@
             btnS.className = `flex-1 py-2 text-[10px] font-black uppercase rounded-lg ${tipo === 'saida' ? 'bg-white shadow-sm text-red-600' : 'text-gray-400'}`;
 
             container.innerHTML = filtrados.length ? '' : '<p class="text-center text-gray-300 mt-20 font-black uppercase text-[10px]">Vazio</p>';
-
-                       filtrados.reverse().forEach(item => {
+            filtrados.reverse().forEach(item => {
                 soma += item.valor;
                 
-                // Formatação da Tag de Sangria/Despesa e Bandeira do Cartão
                 const tag = item.subtipo ? `<span class="px-1.5 py-0.5 rounded text-[8px] font-black uppercase ${item.subtipo==='Sangria'?'bg-red-50 text-red-500 border border-red-200':'bg-orange-50 text-orange-500 border border-orange-200'} ml-2 border border-current">${item.subtipo}</span>` : '';
                 const infoCartao = item.forma === 'Cartão' && item.bandeira ? ` • ${item.bandeira}` : '';
 
                 container.innerHTML += `
-                    <div class="flex items-center justify-between py-4 border-b border-gray-50 relative">
-                        <!-- Lado Esquerdo: Data, Forma e Descrição (Ocupa o máximo de espaço) -->
-                        <div class="flex-1 pr-2 min-w-0">
+                    <div class="flex items-center justify-between py-4 border-b border-gray-50 relative w-full">
+                        <!-- Lado Esquerdo: Ocupa todo o espaço restante -->
+                        <div class="min-w-0 flex-1 pr-4">
                             <div class="flex items-center mb-1 text-[9px] text-gray-400 font-bold uppercase tracking-tighter">
                                 ${item.data}${tag}
                             </div>
-                            <div class="flex flex-col">
+                            <div class="flex flex-col w-full">
                                 <span class="text-[10px] font-black text-blue-500 uppercase tracking-tighter">
                                     ${item.forma}${infoCartao}
                                 </span>
-                                <!-- Espaço ampliado para a descrição com o truncate que você gosta -->
-                                <p class="text-sm font-semibold text-gray-700 truncate max-w-[280px]">
+                                <!-- AQUI O SEGREDO: Usamos w-full para ele se esticar ao máximo -->
+                                <p class="text-sm font-semibold text-gray-700 truncate w-full" style="max-width: 85vw;">
                                     ${item.desc}
                                 </p>
                             </div>
                         </div>
                         
-                        <!-- Lado Direito: Valor e Botão Excluir (Fixo no canto) -->
-                        <div class="flex items-center gap-3 shrink-0 ml-auto">
+                        <!-- Lado Direito: Valor e Botão Fixo -->
+                        <div class="flex items-center gap-3 shrink-0">
                             <span class="text-sm font-black ${tipo === 'entrada' ? 'text-green-600' : 'text-red-600'} tabular-nums">
                                 R$ ${item.valor.toFixed(2)}
                             </span>
-                            
-                            <!-- Botão X de Exclusão SVG -->
                             <button onclick="excluirItem(${item.id}, '${tipo}')" class="text-red-100 hover:text-red-500 transition-colors p-1">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
                                     <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -276,6 +272,7 @@
                         </div>
                     </div>`;
             });
+
 
             document.getElementById('totalPagina').innerText = `R$ ${soma.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
         }
@@ -298,5 +295,6 @@
 </body>
 
 </html>
+
 
 
